@@ -255,8 +255,8 @@ update_package(Name, RepoConfig=#{name := Repo}, State) ->
 
 get_package_repo_config(RepoConfig=#{mirror_of := Repo}) ->
     get_package_repo_config(maps:remove(mirror_of, RepoConfig#{name => Repo}));
-get_package_repo_config(RepoConfig=#{read_key := Key}) ->
-    get_package_repo_config(maps:remove(read_key, RepoConfig#{repo_key => Key}));
+%get_package_repo_config(RepoConfig=#{read_key := Key}) ->
+%    get_package_repo_config(maps:remove(read_key, RepoConfig#{repo_key => Key}));
 get_package_repo_config(RepoConfig) ->
     RepoConfig.
 
