@@ -14,6 +14,7 @@ main(_) ->
     %% Clear directories for builds since bootstrapping may require
     %% a changed structure from an older one
     rm_rf("_build/bootstrap"),
+    compile_xrl_file("src/r3_safe_erl_term.xrl"),
 
     %% Fetch and build deps required to build rebar3
     BaseDeps = [{providers, []}
@@ -22,8 +23,7 @@ main(_) ->
                ,{erlware_commons, ["ec_dictionary.erl", "ec_vsn.erl"]}
                ,{parse_trans, ["parse_trans.erl", "parse_trans_pp.erl",
                                "parse_trans_codegen.erl"]}
-               ,{certifi, []}
-               ,{hex_core, []}],
+               ,{certifi, []}],
     Deps = get_deps(),
     [fetch_and_compile(Dep, Deps) || Dep <- BaseDeps],
 
