@@ -136,7 +136,7 @@ run_aux(State, RawArgs) ->
                  false ->
                      rebar_state:set(State1, rebar_packages_cdn, ?DEFAULT_CDN);
                  CDN ->
-                     rebar_state:set(State1, rebar_packages_cdn, CDN)
+                     rebar_state:set(State1, rebar_packages_cdn, rebar_utils:to_binary(CDN))
              end,
 
     Compilers = application:get_env(rebar, compilers, []),

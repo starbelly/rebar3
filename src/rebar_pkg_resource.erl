@@ -218,7 +218,7 @@ store_etag_in_cache(Path, ETag) ->
 cached_download(TmpDir, CachePath, Pkg={pkg, Name, Vsn, _Hash, RepoConfig}, State, ETag,
                 ETagPath, UpdateETag) ->
     CDN = rebar_state:get(State, rebar_packages_cdn),
-    case request(RepoConfig#{repo_url => rebar_utils:to_binary(CDN)}, Name, Vsn, ETag) of
+    case request(RepoConfig#{repo_url => CDN}, Name, Vsn, ETag) of
         {ok, cached} ->
             ?INFO("Version cached at ~ts is up to date, reusing it", [CachePath]),
             serve_from_cache(TmpDir, CachePath, Pkg);
