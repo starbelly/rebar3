@@ -234,6 +234,7 @@ cached_download(TmpDir, CachePath, Pkg={pkg, Name, Vsn, _OldHash, _Hash, RepoCon
             {fetch_fail, Name, Vsn}
     end.
 
+-spec maybe_default_cdn(rebar_state:t()) -> binary().
 maybe_default_cdn(State) ->
     CDN = rebar_state:get(State, rebar_packages_cdn, ?DEFAULT_CDN),
 	rebar_utils:to_binary(CDN).

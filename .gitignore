@@ -21,6 +21,7 @@ priv/templates/*.dtl.erl
 ebin
 .edts
 env
+rebar3.crashdump
 
-# hex_core artifact 
+# hex_core artifact
 src/r3_safe_erl_term.erl
