@@ -114,30 +114,35 @@ symlink_or_copy(Source, Target) ->
                _ ->
                    rebar_dir:make_relative_path(Source, Target)
            end,
-    case file:make_symlink(Link, Target) of
-        ok ->
-            ok;
-        {error, eexist} ->
-            exists;
-        {error, _} ->
-            case os:type() of
-                {win32, _} ->
-                    S = unicode:characters_to_list(Source),
-                    T = unicode:characters_to_list(Target),
-                    case filelib:is_dir(S) of
-                        true ->
-                            win32_symlink_or_copy(S, T);
-                        false ->
-                            cp_r([S], T)
-                    end;
-                _ ->
-                    case filelib:is_dir(Target) of
-                        true ->
-                            ok;
-                        false ->
-                            cp_r([Source], Target)
-                    end
-            end
+    case os:getenv("REBAR_BARE_COMPILER_OUTPUT_DIR", undefined) of
+         undefined ->
+            case file:make_symlink(Link, Target) of
+                ok ->
+                    ok;
+               {error, eexist} ->
+                 exists;
+              {error, _} ->
+                case os:type() of
+                    {win32, _} ->
+                        S = unicode:characters_to_list(Source),
+                        T = unicode:characters_to_list(Target),
+                        case filelib:is_dir(S) of
+                            true ->
+                                win32_symlink_or_copy(S, T);
+                            false ->
+                                cp_r([S], T)
+                        end;
+                    _ ->
+                        case filelib:is_dir(Target) of
+                            true ->
+                                ok;
+                            false ->
+                                cp_r([Source], Target)
+                        end
+                end
+            end;
+        _Dir ->
+            cp_r([Source], Target)
     end.
 
 %% @private Compatibility function for windows

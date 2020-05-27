@@ -411,14 +411,27 @@ copy_app_dirs(AppInfo, OldAppDir, AppDir) ->
 symlink_or_copy(OldAppDir, AppDir, Dir) ->
     Source = filename:join([OldAppDir, Dir]),
     Target = filename:join([AppDir, Dir]),
-    rebar_file_utils:symlink_or_copy(Source, Target).
+    case  os:getenv("REBAR_BARE_COMPILER_OUTPUT_DIR", undefined) of
+         undefined ->
+            erlang:display({do_not_copy, Source, Target}),
+            rebar_file_utils:symlink_or_copy(Source, Target);
+        _Dir ->
+            erlang:display({copy, Source, Target}),
+            copy(Source, Target)
+    end.
 
 symlink_or_copy_existing(OldAppDir, AppDir, Dir) ->
     Source = filename:join([OldAppDir, Dir]),
     Target = filename:join([AppDir, Dir]),
-    case ec_file:is_dir(Source) of
-        true -> rebar_file_utils:symlink_or_copy(Source, Target);
-        false -> ok
+    case os:getenv("REBAR_BARE_COMPILER_OUTPUT_DIR", undefined) of
+        undefined ->
+            case ec_file:is_dir(Source) of
+                true -> rebar_file_utils:symlink_or_copy(Source, Target);
+                false -> ok
+            end;
+        Dir ->
+            erlang:display({Source, Target}),
+          copy(Source, Target)
     end.
 
 copy(OldAppDir, AppDir, Dir) ->

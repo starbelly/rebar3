@@ -53,7 +53,9 @@ do(State) ->
     {RawOpts, _} = rebar_state:command_parsed_args(State),
     Paths = proplists:get_value(paths, RawOpts),
     Sep = proplists:get_value(separator, RawOpts, " "),
-    OutDir = proplists:get_value(outdir, RawOpts, rebar_dir:get_cwd()),
+    DefaultOutDir = os:getenv("REBAR_BARE_COMPILER_OUTPUT_DIR", rebar_dir:get_cwd()),
+    erlang:display(DefaultOutDir),
+    OutDir = proplists:get_value(outdir, RawOpts, DefaultOutDir),
     [ code:add_pathsa(filelib:wildcard(PathWildcard))
       || PathWildcard <- rebar_string:lexemes(Paths, Sep) ],
 

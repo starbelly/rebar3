@@ -352,11 +352,12 @@ maybe_fetch(AppInfo, Profile, Upgrade, Seen, State) ->
     end.
 
 needs_symlinking(State, Profile) ->
-    case {rebar_state:current_profiles(State), Profile} of
-        {[default], default} ->
+    erlang:display({need_symlinking, os:getenv("REBAR_BARE_COMPILER_OUTPUT_DIR", undefined)}),
+    case {os:getenv("REBAR_BARE_COMPILER_OUTPUT_DIR", undefined), rebar_state:current_profiles(State), Profile} of
+        {_, [default], default} ->
             %% file will be in default already -- this is the only run we have
             false;
-        {_, default} ->
+        {undefined, _, default} ->
             %% file fetched to default, needs to be linked to the current
             %% run's directory.
             true;
@@ -366,26 +367,34 @@ needs_symlinking(State, Profile) ->
     end.
 
 maybe_symlink_default(State, Profile, AppDir, AppInfo) ->
-    case needs_symlinking(State, Profile) of
-        true ->
+    case {os:getenv("REBAR_BARE_COMPILER_OUTPUT_DIR", undefined), needs_symlinking(State, Profile)} of
+        {undefined, true} ->
             SymDir = filename:join([rebar_dir:deps_dir(State),
                                     rebar_app_info:name(AppInfo)]),
             symlink_dep(State, AppDir, SymDir),
             true;
-        false ->
+        {_, true} ->
+            false;
+        {_, false} ->
             false
     end.
 
 symlink_dep(State, From, To) ->
     filelib:ensure_dir(To),
-    case rebar_file_utils:symlink_or_copy(From, To) of
-        ok ->
-            RelativeFrom = make_relative_to_root(State, From),
-            RelativeTo = make_relative_to_root(State, To),
-            ?INFO("Linking ~ts to ~ts", [RelativeFrom, RelativeTo]),
-            ok;
-        exists ->
-            ok
+    case os:getenv("REBAR_BARE_COMPILER_OUTPUT_DIR", undefined) of
+        undefined -> 
+            case rebar_file_utils:symlink_or_copy(From, To) of
+             ok ->
+                RelativeFrom = make_relative_to_root(State, From),
+                RelativeTo = make_relative_to_root(State, To),
+                ?INFO("Linking ~ts to ~ts", [RelativeFrom, RelativeTo]),
+                ok;
+            exists ->
+                ok
+            end;
+        _Dir -> 
+            erlang:display("COPY!"),
+            rebar_file_utils:cp_r([From], To)
     end.
 
 make_relative_to_root(State, Path) when is_binary(Path) ->
